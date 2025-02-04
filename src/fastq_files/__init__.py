@@ -6,6 +6,7 @@ import re
 from collections import defaultdict
 from typing import List
 import hashlib
+import logging
 
 def get_md5(fname):
     hash_md5 = hashlib.md5()
@@ -34,9 +35,12 @@ class SingleSample:
     r1 : str
         Path to the R1 file
     """
-    def __init__(self,prefix: str,r1: str) -> None:
+    def __init__(self,prefix: str,r1: List[str]) -> None:
         self.prefix = prefix
         self.r1 = r1
+        self.md5r1 = []
+
+
 
     def __repr__(self) -> str:
         return f"Sample(prefix={self.prefix},r1={self.r1})"
@@ -46,6 +50,21 @@ class SingleSample:
         Function to combine R1 and R2 files into a single file
         """
         sp.call(f"ln -s {self.r1} {self.prefix}.fastq.gz",shell=True)
+
+    def calculate_md5(self):
+        """
+        Function to calculate md5 checksums for R1 and R2 files
+        """
+        for r in self.r1:
+            md5sum_file = f"{r}.md5"
+            if not os.path.exists(md5sum_file):
+                md5 = get_md5(r)
+                with open(md5sum_file,"w") as f:
+                    f.write(f"{md5}")
+            else:
+                with open(md5sum_file,"r") as f:
+                    md5 = f.read().strip()
+            self.md5r1.append(md5)
 
 class PairedSample:
     """
@@ -71,7 +90,7 @@ class PairedSample:
     multiple : bool
         Whether there are multiple R1 and R2 files
     """
-    def __init__(self,prefix: str,r1: str,r2: str) -> None:
+    def __init__(self,prefix: str,r1: List[str],r2: List[str]) -> None:
         self.prefix = prefix
         self.r1 = sorted(r1)
         self.r2 = sorted(r2)
@@ -137,6 +156,8 @@ def get_single_samples(files: List[str], r1_suffix: str) -> List[SingleSample]:
     """
     prefixes = defaultdict(list)
 
+    print(files)
+
     for f in files:
         tmp1 = re.search("%s" % r1_suffix,f)
         p = None
@@ -149,7 +170,7 @@ def get_single_samples(files: List[str], r1_suffix: str) -> List[SingleSample]:
         vals.sort()
         
         runs.append(
-            SingleSample(p,vals[0])
+            SingleSample(p,vals)
         )
 
     return runs
@@ -249,7 +270,9 @@ def find_single_fastq_samples(directories: List[str], r1_pattern: str) -> List[S
     """
     files = []
     for d in directories:
+        print(d)
         for a,b,c in os.walk(d):
+            print(a,b,c)
             for f in c:
                 files.append(f"{os.path.abspath(a)}/{f}")
     fastq_files = get_single_samples(files,r1_pattern)
