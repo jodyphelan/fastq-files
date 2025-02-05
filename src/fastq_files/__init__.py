@@ -159,7 +159,7 @@ def get_single_samples(files: List[str], r1_suffix: str) -> List[SingleSample]:
     print(files)
 
     for f in files:
-        tmp1 = re.search("%s" % r1_suffix,f)
+        tmp1 = re.match("%s$" % r1_suffix,f)
         p = None
         if tmp1:
             p = tmp1.group(1).split("/")[-1]
@@ -197,8 +197,8 @@ def get_paired_samples(files: List[str], r1_suffix: str,r2_suffix: str) -> List[
     prefixes = defaultdict(lambda:{"r1":[],"r2":[]})
 
     for f in files:
-        tmp1 = re.search("%s" % r1_suffix,f)
-        tmp2 = re.search("%s" % r2_suffix,f)
+        tmp1 = re.match("%s$" % r1_suffix,f)
+        tmp2 = re.match("%s$" % r2_suffix,f)
         p = None
         if tmp1:
             p = tmp1.group(1).split("/")[-1]
