@@ -15,7 +15,7 @@ def get_md5(fname):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-__version__ = "0.0.2"
+__version__ = "0.1.0"
 
 class SingleSample:
     """
