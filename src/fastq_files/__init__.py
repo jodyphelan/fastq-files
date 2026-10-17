@@ -175,7 +175,7 @@ def get_single_samples(files: List[str], r1_suffix: str) -> List[SingleSample]:
     return runs
 
 
-def get_paired_samples(files: List[str], r1_suffix: str,r2_suffix: str) -> List[PairedSample]:
+def get_paired_samples(files: List[str], r1_suffix: str,r2_suffix: str, ignore_errors=False) -> List[PairedSample]:
     """
     Function to sort out paired files from a list of files
 
@@ -210,7 +210,10 @@ def get_paired_samples(files: List[str], r1_suffix: str,r2_suffix: str) -> List[
     for p,vals in prefixes.items():
 
         if len(vals['r1'])!=len(vals['r2']):
-            raise ValueError(f"Number of R1 and R2 files for sample {p} do not match")
+            if ignore_errors:
+                continue
+            else:
+                raise ValueError(f"Number of R1 and R2 files for sample {p} do not match")
         vals['r1'].sort()
         vals['r2'].sort()
         runs.append(
