@@ -156,10 +156,8 @@ def get_single_samples(files: List[str], r1_suffix: str) -> List[SingleSample]:
     """
     prefixes = defaultdict(list)
 
-    print(files)
 
     for f in files:
-        print(f)
         tmp1 = re.search("(.+)%s$" % r1_suffix,f)
         p = None
         if tmp1:
@@ -271,9 +269,7 @@ def find_single_fastq_samples(directories: List[str], r1_pattern: str) -> List[S
     """
     files = []
     for d in directories:
-        print(d)
         for a,b,c in os.walk(d):
-            print(a,b,c)
             for f in c:
                 files.append(f"{os.path.abspath(a)}/{f}")
     fastq_files = get_single_samples(files,r1_pattern)
